@@ -10,13 +10,11 @@ package com.github.koraktor.steamcondenser.community;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.params.ClientPNames;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -296,26 +294,26 @@ abstract public class WebApi {
         }
 
         String data;
-        try {
-            CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpGet request = new HttpGet(url);
-            HttpResponse response = httpClient.execute(request);
+            ClassicHttpResponse response = httpClient.execute(request);
 
-            Integer statusCode = response.getStatusLine().getStatusCode();
-            if(!statusCode.toString().startsWith("20")) {
-                if(statusCode == 401) {
+            int statusCode = response.getCode();
+            if (!String.valueOf(statusCode).startsWith("20")) {
+                if (statusCode == 401) {
                     throw new WebApiException(WebApiException.Cause.UNAUTHORIZED);
                 }
 
-                throw new WebApiException(WebApiException.Cause.HTTP_ERROR, statusCode, response.getStatusLine().getReasonPhrase());
+                throw new WebApiException(WebApiException.Cause.HTTP_ERROR, statusCode, response.getReasonPhrase());
             }
 
             data = EntityUtils.toString(response.getEntity());
         } catch (WebApiException e) {
             throw e;
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new WebApiException("Could not communicate with the Web API.", e);
         }
+
 
         return data;
     }
