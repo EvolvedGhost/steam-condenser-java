@@ -10,12 +10,13 @@ package com.github.koraktor.steamcondenser.community;
 import java.io.ByteArrayInputStream;
 import java.util.HashMap;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.StatusLine;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.message.StatusLine;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -40,7 +41,7 @@ import static org.powermock.api.mockito.PowerMockito.*;
  * @author Sebastian Staudt
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ HttpClientBuilder.class, WebApi.class })
+@PrepareForTest({ HttpClients.class, WebApi.class })
 public class WebApiTest {
 
     @Rule
@@ -51,7 +52,7 @@ public class WebApiTest {
         WebApi.apiKey = "0123456789ABCDEF0123456789ABCDEF";
         WebApi.setSecure(true);
 
-        mockStatic(HttpClientBuilder.class);
+        mockStatic(HttpClients.class);
     }
 
     @Test
@@ -121,10 +122,8 @@ public class WebApiTest {
 
     @Test
     public void testLoad() throws Exception {
-        HttpClientBuilder clientBuilder = mock(HttpClientBuilder.class);
         CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
-        when(clientBuilder.build()).thenReturn(httpClient);
-        when(HttpClientBuilder.create()).thenReturn(clientBuilder);
+        when(HttpClients.createDefault()).thenReturn(httpClient);
 
         this.prepareRequest("https://api.steampowered.com/interface/method/v0002/?test=param&format=json&key=0123456789ABCDEF0123456789ABCDEF", 200, null, "test");
 
@@ -138,10 +137,8 @@ public class WebApiTest {
     public void testLoadInsecure() throws Exception {
         WebApi.setSecure(false);
 
-        HttpClientBuilder clientBuilder = mock(HttpClientBuilder.class);
         CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
-        when(clientBuilder.build()).thenReturn(httpClient);
-        when(HttpClientBuilder.create()).thenReturn(clientBuilder);
+        when(HttpClients.createDefault()).thenReturn(httpClient);
 
         this.prepareRequest("http://api.steampowered.com/interface/method/v0002/?test=param&format=json&key=0123456789ABCDEF0123456789ABCDEF", 200, null, "test");
 
@@ -165,10 +162,8 @@ public class WebApiTest {
     public void testLoadWithoutKey() throws Exception {
         WebApi.setApiKey(null);
 
-        HttpClientBuilder clientBuilder = mock(HttpClientBuilder.class);
         CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
-        when(clientBuilder.build()).thenReturn(httpClient);
-        when(HttpClientBuilder.create()).thenReturn(clientBuilder);
+        when(HttpClients.createDefault()).thenReturn(httpClient);
 
         this.prepareRequest("https://api.steampowered.com/interface/method/v0002/?test=param&format=json", 200, null, "test");
 
@@ -189,19 +184,16 @@ public class WebApiTest {
     }
 
     private void prepareRequest(String url, int statusCode, String reason, String content) throws Exception {
-        HttpClientBuilder clientBuilder = mock(HttpClientBuilder.class);
         CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
-        when(clientBuilder.build()).thenReturn(httpClient);
-        when(HttpClientBuilder.create()).thenReturn(clientBuilder);
+        when(HttpClients.createDefault()).thenReturn(httpClient);
 
         HttpGet request = mock(HttpGet.class);
         whenNew(HttpGet.class).withArguments(url).thenReturn(request);
 
-        CloseableHttpResponse response = mock(CloseableHttpResponse.class);
+        ClassicHttpResponse response = mock(ClassicHttpResponse.class);
         StatusLine statusLine = mock(StatusLine.class);
         when(statusLine.getReasonPhrase()).thenReturn(reason);
         when(statusLine.getStatusCode()).thenReturn(statusCode);
-        when(response.getStatusLine()).thenReturn(statusLine);
 
         if (content != null) {
             HttpEntity entity = mock(HttpEntity.class);
@@ -210,7 +202,9 @@ public class WebApiTest {
         }
 
         doReturn(response).when(httpClient).execute(request);
-        when(httpClient.execute(request)).thenReturn(response);
+        when(httpClient.execute(request)).thenReturn((CloseableHttpResponse) response);
     }
-
 }
+
+
+
