@@ -56,7 +56,7 @@ public class S2A_INFO2_Packet extends S2A_INFO_BasePacket {
             }
 
             if ((extraDataFlag & EDF_SERVER_ID) != 0) {
-                this.info.put("serverId", Long.reverseBytes((this.contentData.getInt() << 32) | this.contentData.getInt()));
+                this.info.put("serverId", Long.reverseBytes(((long) this.contentData.getInt() << 32) | this.contentData.getInt()));
             }
 
             if ((extraDataFlag & EDF_SOURCE_TV) != 0) {
@@ -69,7 +69,7 @@ public class S2A_INFO2_Packet extends S2A_INFO_BasePacket {
             }
 
             if ((extraDataFlag & EDF_GAME_ID) != 0) {
-                this.info.put("gameId", Long.reverseBytes((this.contentData.getInt() << 32) | this.contentData.getInt()));
+                this.info.put("gameId", Long.reverseBytes(((long) this.contentData.getInt() << 32) | this.contentData.getInt()));
             }
         }
     }

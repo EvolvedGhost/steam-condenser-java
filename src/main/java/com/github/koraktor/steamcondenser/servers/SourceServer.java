@@ -187,12 +187,12 @@ public class SourceServer extends GameServer {
                 throw new RCONNoAuthException();
             }
 
-            if (!isMulti && ((RCONExecResponsePacket) responsePacket).getResponse().length() > 0) {
+            if (!isMulti && !((RCONExecResponsePacket) responsePacket).getResponse().isEmpty()) {
                 isMulti = true;
                 this.rconSocket.send(new RCONTerminator(this.rconRequestId));
             }
             response.add(((RCONExecResponsePacket) responsePacket).getResponse());
-        } while(isMulti && !(response.size() > 2 && response.get(response.size() - 2).equals("") && response.get(response.size() - 1).equals("")));
+        } while(isMulti && !(response.size() > 2 && response.get(response.size() - 2).isEmpty() && response.get(response.size() - 1).isEmpty()));
 
         return StringUtils.join(response.toArray()).trim();
     }
