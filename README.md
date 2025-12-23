@@ -1,11 +1,13 @@
 Steam Condenser
 ===============
 
-[![Build Status](https://secure.travis-ci.org/koraktor/steam-condenser-java.png)](http://travis-ci.org/koraktor/steam-condenser-java)
+[![](https://www.jitpack.io/v/EvolvedGhost/steam-condenser-java.svg)](https://www.jitpack.io/#EvolvedGhost/steam-condenser-java)
 
 The Steam Condenser is a multi-language library for querying the Steam
 Community, Source and GoldSrc game servers as well as the Steam master servers.
 Currently it is implemented in Java, PHP and Ruby.
+
+**Note:** This forked repository is for my personal use—to adapt the project for newer Java versions and update dependencies to more secure ones. No new features have been added, and its usage remains consistent with the original repository. You can obtain this version via JitPack.
 
 ## Requirements
 
